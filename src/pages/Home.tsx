@@ -8,6 +8,7 @@ import {
   croProofsData,
   salesProofsData,
   clientVideosData,
+  freelanceReviewsScreenshots,
   founderImages
 } from '../data/cloudinary_assets';
 import {
@@ -148,11 +149,11 @@ export default function Home() {
             {/* Left Content Column */}
             <div className="lg:col-span-7 space-y-6 text-left">
               <h1 className="font-display font-extrabold text-4xl sm:text-5xl lg:text-6xl text-white leading-tight tracking-tight">
-                Helping Businesses Grow With <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary via-blue-400 to-white">High-Converting</span> Websites.
+                High-Converting Websites <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary via-blue-400 to-white">That Grow Your Business</span>
               </h1>
 
-              <p className="text-lg text-slate-300 leading-relaxed max-w-2xl font-sans">
-                We design and custom-code bespoke Shopify stores, elegant corporate systems, and lightning-fast landing page campaigns. Founded by <span className="text-white font-semibold">Samson B</span>. Built strictly for conversions.
+              <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-sans">
+                We build custom websites, Shopify stores, mobile apps, and digital solutions that attract more customers, generate qualified leads, and increase sales.
               </p>
 
               {/* CTAs */}
@@ -194,10 +195,10 @@ export default function Home() {
               
               {/* Giant background outline text */}
               <div 
-                className="absolute -bottom-10 left-1/2 -translate-x-1/2 font-display font-extrabold text-[120px] select-none pointer-events-none uppercase leading-none opacity-10 tracking-wider transition-all duration-300 hover:opacity-15"
+                className="absolute -bottom-10 left-1/2 -translate-x-1/2 font-display font-extrabold text-[42px] sm:text-[70px] lg:text-[85px] select-none pointer-events-none uppercase leading-none opacity-10 tracking-wider transition-all duration-300 hover:opacity-15 whitespace-nowrap"
                 style={{ WebkitTextStroke: '1px rgba(255, 255, 255, 0.4)', color: 'transparent' }}
               >
-                STUDIO
+                WhizwayDigit
               </div>
 
               {/* Pulsing visual glow effect */}
@@ -534,6 +535,151 @@ export default function Home() {
             ))}
           </div>
 
+        </div>
+      </section>
+
+      {/* CLIENT REVIEWS & VIDEO TESTIMONIALS SECTION */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 text-center py-6">
+        <div className="space-y-3 max-w-3xl mx-auto">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-brand-primary/10 border border-brand-primary/20 rounded-full text-xs font-mono font-bold tracking-widest uppercase text-brand-primary">
+            VERIFIED CLIENT FEEDBACK
+          </span>
+          <h2 className="font-display font-extrabold text-3xl sm:text-4xl text-brand-secondary tracking-tight">
+            Client Reviews & Video Testimonials
+          </h2>
+          <p className="text-slate-500 font-sans text-sm sm:text-base">
+            See what real business owners, e-commerce CEOs, and founders say about working with Samson B & WhizwayDigit.
+          </p>
+        </div>
+
+        {/* Video Testimonials Showcase Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
+          {clientVideosData.slice(0, 3).map((video) => (
+            <div
+              key={video.id}
+              onClick={() => {
+                setActiveVideoUrl(video.url);
+                setActiveVideoClient(`${video.clientName} - ${video.role}`);
+              }}
+              className="bg-slate-900 rounded-2xl overflow-hidden border border-white/10 shadow-xl group cursor-pointer hover:border-brand-primary/50 hover:scale-[1.02] transition-all duration-300 flex flex-col justify-between"
+            >
+              <div className="relative aspect-[9/12] w-full bg-slate-950 overflow-hidden flex items-center justify-center">
+                <video
+                  src={video.url}
+                  preload="metadata"
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
+                
+                {/* Glowing play button */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="p-4 rounded-full bg-brand-primary/90 text-white shadow-2xl group-hover:scale-110 group-hover:bg-brand-primary transition-all duration-300">
+                    <Play className="w-7 h-7 fill-white translate-x-0.5" />
+                  </div>
+                </div>
+
+                <div className="absolute top-3 left-3 px-2.5 py-1 bg-slate-950/80 backdrop-blur-md border border-white/10 rounded-lg text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  VERIFIED VIDEO TESTIMONIAL
+                </div>
+              </div>
+
+              <div className="p-5 bg-slate-950 border-t border-white/10 space-y-2">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-display font-extrabold text-base text-white">{video.clientName}</h3>
+                  <div className="flex gap-0.5 text-amber-400">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-3.5 h-3.5 fill-amber-400" />
+                    ))}
+                  </div>
+                </div>
+                <p className="text-xs text-brand-primary font-mono font-bold">{video.role}</p>
+                <p className="text-xs text-slate-300 line-clamp-2">{video.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Written Review Cards Row */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left pt-2">
+          <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-md space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex gap-1 text-amber-400">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-4 h-4 fill-amber-400" />
+                ))}
+              </div>
+              <span className="px-2.5 py-0.5 bg-blue-50 text-blue-700 text-[10px] font-bold font-mono rounded-md border border-blue-200">
+                GOOGLE REVIEW
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-sans italic">
+              "Samson completely transformed our Shopify storefront. The speed improvements alone increased our conversion rate by over 40% in the first month. Highly recommended!"
+            </p>
+            <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+              <div>
+                <h4 className="font-display font-bold text-xs text-slate-900">Verified Client</h4>
+                <p className="text-[10px] text-slate-500">Google My Business</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-md space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex gap-1 text-amber-400">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-4 h-4 fill-amber-400" />
+                ))}
+              </div>
+              <span className="px-2.5 py-0.5 bg-emerald-50 text-emerald-700 text-[10px] font-bold font-mono rounded-md border border-emerald-200">
+                UPWORK 5-STAR
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-sans italic">
+              "Working with Samson B was an absolute pleasure. His attention to detail, clear communication, and speed optimizations are world-class."
+            </p>
+            <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+              <div>
+                <h4 className="font-display font-bold text-xs text-slate-900">E-Commerce Founder</h4>
+                <p className="text-[10px] text-slate-500">Upwork Verified Client</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-md space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex gap-1 text-amber-400">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-4 h-4 fill-amber-400" />
+                ))}
+              </div>
+              <span className="px-2.5 py-0.5 bg-purple-50 text-purple-700 text-[10px] font-bold font-mono rounded-md border border-purple-200">
+                FIVERR TOP RATED
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-sans italic">
+              "Pristine code execution and fast delivery. Samson understands human purchase psychology and designed our store for max sales."
+            </p>
+            <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+              <div>
+                <h4 className="font-display font-bold text-xs text-slate-900">Brand CEO</h4>
+                <p className="text-[10px] text-slate-500">Fiverr Verified Client</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* CTA Button to Reviews Page */}
+        <div className="pt-2">
+          <button
+            onClick={() => navigate('/reviews')}
+            className="px-8 py-4 bg-gradient-to-r from-brand-primary to-brand-accent hover:opacity-95 text-white font-extrabold text-sm rounded-xl shadow-xl hover:scale-105 active:scale-95 transition-all duration-300 inline-flex items-center gap-2.5 cursor-pointer"
+          >
+            <span>See More Reviews & Video Testimonials</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
         </div>
       </section>
 

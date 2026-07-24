@@ -56,13 +56,13 @@ export default function About() {
 
         <div className="max-w-4xl mx-auto text-center px-4 relative z-10 space-y-4">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-brand-primary/10 border border-brand-primary/20 rounded-full text-xs font-semibold text-brand-primary">
-            THE FORCE BEHIND WHIZWAYDIGIT
+            OUR COMPANY & MISSION
           </span>
           <h1 className="font-display font-extrabold text-4xl sm:text-5xl text-brand-secondary tracking-tight">
-            Crafting Digital Platforms That Commands Premium Authority.
+            About WhizwayDigit
           </h1>
-          <p className="text-slate-500 font-sans max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
-            WhizwayDigit is a boutique digital studio specializing in premium custom development, high-converting checkout flows, and surgical page-speed engineering.
+          <p className="text-slate-600 font-sans max-w-2xl mx-auto text-sm sm:text-base leading-relaxed font-medium">
+            At WhizwayDigit, we believe your website should be more than just visually appealing—it should grow your business.
           </p>
         </div>
       </section>
@@ -85,7 +85,7 @@ export default function About() {
                 <div className="relative z-10 space-y-1">
                   <span className="text-[10px] uppercase font-mono tracking-widest text-brand-primary font-bold bg-slate-950/60 backdrop-blur-md px-2 py-0.5 rounded-md w-fit block">FOUNDER BRIEF</span>
                   <h3 className="font-display font-extrabold text-2xl leading-tight drop-shadow-md">Samson Bojesomo</h3>
-                  <p className="text-xs text-slate-200 drop-shadow-sm">Founder of WhizwayDigit | Shopify & React Principal Engineer</p>
+                  <p className="text-xs text-slate-200 drop-shadow-sm">Founder of WhizwayDigit | Principal Engineer</p>
                 </div>
               </div>
             </div>
@@ -96,11 +96,11 @@ export default function About() {
               Our Story, Mission & Dedication
             </h2>
             
-            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed font-sans">
+            <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-sans italic">
               "When I entered the digital development space, I noticed a troubling trend: businesses were spending thousands of dollars on expensive paid advertising campaigns, only to send high-intent traffic to bloated, clunky, template-built websites that loaded slowly and converted poorly."
             </p>
 
-            <p className="text-xs sm:text-sm text-slate-500 leading-relaxed font-sans">
+            <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-sans italic">
               "WhizwayDigit was founded with a singular, clear mission: to dismantle bloat. We threw out traditional heavy page builders and standard layouts. Instead, we assemble custom React code systems and bespoke Liquid templates. This guarantees that your business presents a pristine, premium impression, scores a 95+ mobile PageSpeed rating, and converts cold clicks into active loyal clients."
             </p>
 

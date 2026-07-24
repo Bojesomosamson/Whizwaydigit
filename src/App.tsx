@@ -9,6 +9,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import WhatsAppButton from './components/WhatsAppButton';
 import Preloader from './components/Preloader';
+import CustomCursor from './components/CustomCursor';
 
 // Pages
 import Home from './pages/Home';
@@ -74,6 +75,9 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans selection:bg-brand-primary/20 selection:text-brand-secondary">
+      {/* Interactive Cursor Effect */}
+      <CustomCursor />
+
       {/* Brand Preloader */}
       <Preloader />
 
