@@ -175,7 +175,7 @@ export default function Resources() {
           <div className="max-w-xl mx-auto space-y-2">
             <h3 className="font-display font-bold text-2xl">Want a Completely Custom Technical Web Audit?</h3>
             <p className="text-xs text-slate-300">
-              Skip standard checklists. Let\'s perform a detailed PageSpeed, SEO, and layout audit of your active live portal. Completely free of charge.
+              Skip standard checklists. Let's perform a detailed PageSpeed, SEO, and layout audit of your active live portal. Completely free of charge.
             </p>
           </div>
           <button

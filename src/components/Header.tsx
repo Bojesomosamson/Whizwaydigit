@@ -23,6 +23,9 @@ import {
 export default function Header() {
   const { state, navigate } = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
+  const [mobilePortfolioOpen, setMobilePortfolioOpen] = useState(false);
+  const [mobileContactOpen, setMobileContactOpen] = useState(false);
   const [servicesDropdownOpen, setServicesDropdownOpen] = useState(false);
   const [portfolioDropdownOpen, setPortfolioDropdownOpen] = useState(false);
   const [contactDropdownOpen, setContactDropdownOpen] = useState(false);
@@ -93,6 +96,7 @@ export default function Header() {
   const portfolioDropdownItems = [
     { name: 'Portfolio Grid', path: '/portfolio', desc: 'Browse our core digital builds', icon: <FolderOpen className="w-4 h-4 text-brand-primary" /> },
     { name: 'Case Studies', path: '/case-studies', desc: 'Real conversion & speed metrics', icon: <TrendingUp className="w-4 h-4 text-indigo-400" /> },
+    { name: 'Client Reviews', path: '/reviews', desc: 'Upwork, Fiverr & video testimonials', icon: <Sparkles className="w-4 h-4 text-amber-400" /> },
     { name: 'Resources', path: '/resources', desc: 'Free optimization checklists', icon: <FileText className="w-4 h-4 text-emerald-400" /> },
   ];
 
@@ -116,11 +120,14 @@ export default function Header() {
           {/* Logo */}
           <div
             onClick={() => handleNav('/')}
-            className="flex items-center gap-2 cursor-pointer group"
+            className="flex items-center gap-2.5 cursor-pointer group"
           >
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-brand-primary to-brand-accent flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
+            <img
+              src="https://res.cloudinary.com/h4ihjmt1/image/upload/v1784822212/my_logo-removebg-preview_mj5zdb.png"
+              alt="WhizwayDigit Logo"
+              referrerPolicy="no-referrer"
+              className="h-10 sm:h-12 w-auto object-contain max-h-[48px] drop-shadow-md transition-transform duration-300 group-hover:scale-105 shrink-0"
+            />
             <div>
               <span className="font-display font-extrabold text-xl tracking-tight text-white group-hover:text-brand-primary transition-colors duration-300">
                 WhizwayDigit
@@ -288,6 +295,16 @@ export default function Header() {
               )}
             </div>
 
+            {/* Testimonials / Reviews */}
+            <div
+              onClick={() => handleNav('/reviews')}
+              className={`px-2 py-2 text-xs font-bold rounded-md cursor-pointer transition-colors duration-200 shrink-0 ${
+                state.page === 'reviews' ? 'text-brand-primary font-extrabold' : 'text-slate-300 hover:text-white'
+              }`}
+            >
+              Testimonials
+            </div>
+
             {/* Pricing */}
             <div
               onClick={() => handleNav('/pricing')}
@@ -341,95 +358,231 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Mobile Drawer Navigation */}
+      {/* Mobile & Tablet Drawer Navigation */}
       {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-x-0 top-[60px] bottom-0 bg-black/95 backdrop-blur-lg border-t border-white/10 z-40 overflow-y-auto animate-fade-in-up">
-          <div className="px-4 py-6 space-y-4 text-left">
+        <div className="lg:hidden fixed inset-x-0 top-[60px] bottom-0 bg-slate-950/98 backdrop-blur-xl border-t border-white/10 z-40 overflow-y-auto animate-fade-in-up">
+          <div className="px-4 py-6 space-y-3 text-left max-w-md mx-auto">
             
-            {/* Services Expanding Section */}
-            <div className="space-y-2 border-b border-white/5 pb-4">
-              <span className="font-display font-semibold text-xs text-slate-500 uppercase tracking-wider block px-3">
-                Our Services
-              </span>
-              <div className="grid grid-cols-1 gap-1 pt-2">
-                {[...leftColumnServices, ...rightColumnServices].map((item) => {
-                  const isSelected = state.page === 'services' && state.serviceSlug === item.slug;
-                  return (
-                    <div
-                      key={item.slug}
-                      onClick={() => handleNav(`/services/${item.slug}`)}
-                      className={`px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
-                        isSelected
-                          ? 'bg-brand-primary/15 text-brand-primary font-bold'
-                          : 'text-slate-300 hover:bg-white/5 hover:text-white'
-                      }`}
-                    >
-                      {item.name}
-                    </div>
-                  );
-                })}
-              </div>
+            {/* Home */}
+            <div
+              onClick={() => handleNav('/')}
+              className={`block px-4 py-3 rounded-xl text-base font-bold cursor-pointer transition-all ${
+                state.page === '' || state.page === 'home'
+                  ? 'bg-brand-primary/15 text-brand-primary border-l-4 border-brand-primary font-extrabold'
+                  : 'text-slate-200 hover:bg-white/5 hover:text-white'
+              }`}
+            >
+              Home
             </div>
 
-            {/* Custom Interactive Mobile Nav Groupings */}
-            <div className="space-y-1">
-              {/* Portfolio Dropdown Mobile Collapsible */}
-              <div className="space-y-1 border-b border-white/5 pb-3 pt-2">
-                <span className="font-display font-semibold text-[10px] text-slate-500 uppercase tracking-wider block px-3">
-                  Portfolio Hub
-                </span>
-                <div className="grid grid-cols-1 gap-1 pl-2">
+            {/* Services Mother Page with Nested Sub-Pages */}
+            <div className="rounded-xl border border-white/10 bg-white/5 overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-white/5 transition-colors">
+                <div
+                  onClick={() => handleNav('/services')}
+                  className={`text-base font-bold ${
+                    state.page === 'services' ? 'text-brand-primary font-extrabold' : 'text-slate-100 hover:text-white'
+                  }`}
+                >
+                  Services
+                </div>
+                <button
+                  onClick={() => setMobileServicesOpen(!mobileServicesOpen)}
+                  className="p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-1 text-xs font-semibold"
+                  aria-label="Toggle Services submenu"
+                >
+                  <span className="text-[11px] text-slate-400">{mobileServicesOpen ? 'Hide Subpages' : 'Subpages'}</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${mobileServicesOpen ? 'rotate-180' : ''}`} />
+                </button>
+              </div>
+
+              {mobileServicesOpen && (
+                <div className="px-3 pb-3 space-y-1 bg-black/50 pt-2 border-t border-white/5">
+                  <div
+                    onClick={() => handleNav('/services')}
+                    className="px-3 py-1.5 text-xs font-bold text-brand-primary hover:underline cursor-pointer flex items-center gap-1.5"
+                  >
+                    <span>→ View Main Services Page</span>
+                  </div>
+
+                  <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 px-3 pt-2">
+                    Development & Core
+                  </div>
+                  {leftColumnServices.map((item) => {
+                    const isSelected = state.page === 'services' && state.serviceSlug === item.slug;
+                    return (
+                      <div
+                        key={item.slug}
+                        onClick={() => handleNav(`/services/${item.slug}`)}
+                        className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-all ${
+                          isSelected ? 'bg-brand-primary/20 text-brand-primary font-bold' : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                        }`}
+                      >
+                        <div className="shrink-0">{item.icon}</div>
+                        <span className="text-xs font-medium">{item.name}</span>
+                      </div>
+                    );
+                  })}
+
+                  <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 px-3 pt-2">
+                    Performance & Optimization
+                  </div>
+                  {rightColumnServices.map((item) => {
+                    const isSelected = state.page === 'services' && state.serviceSlug === item.slug;
+                    return (
+                      <div
+                        key={item.slug}
+                        onClick={() => handleNav(`/services/${item.slug}`)}
+                        className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-all ${
+                          isSelected ? 'bg-brand-primary/20 text-brand-primary font-bold' : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                        }`}
+                      >
+                        <div className="shrink-0">{item.icon}</div>
+                        <span className="text-xs font-medium">{item.name}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Portfolio Mother Page with Nested Sub-Pages */}
+            <div className="rounded-xl border border-white/10 bg-white/5 overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-white/5 transition-colors">
+                <div
+                  onClick={() => handleNav('/portfolio')}
+                  className={`text-base font-bold ${
+                    ['portfolio', 'case-studies', 'resources'].includes(state.page)
+                      ? 'text-brand-primary font-extrabold'
+                      : 'text-slate-100 hover:text-white'
+                  }`}
+                >
+                  Portfolio
+                </div>
+                <button
+                  onClick={() => setMobilePortfolioOpen(!mobilePortfolioOpen)}
+                  className="p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-1 text-xs font-semibold"
+                  aria-label="Toggle Portfolio submenu"
+                >
+                  <span className="text-[11px] text-slate-400">{mobilePortfolioOpen ? 'Hide Subpages' : 'Subpages'}</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${mobilePortfolioOpen ? 'rotate-180' : ''}`} />
+                </button>
+              </div>
+
+              {mobilePortfolioOpen && (
+                <div className="px-3 pb-3 space-y-1 bg-black/50 pt-2 border-t border-white/5">
                   {portfolioDropdownItems.map((item) => {
                     const isSelected = state.page === item.path.replace('/', '');
                     return (
                       <div
                         key={item.path}
                         onClick={() => handleNav(item.path)}
-                        className={`px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors ${
-                          isSelected
-                            ? 'bg-brand-primary/15 text-brand-primary font-bold'
-                            : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                        className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-all ${
+                          isSelected ? 'bg-brand-primary/20 text-brand-primary font-bold' : 'text-slate-300 hover:bg-white/10 hover:text-white'
                         }`}
                       >
-                        {item.name}
+                        <div className="shrink-0">{item.icon}</div>
+                        <div>
+                          <span className="text-xs font-medium block">{item.name}</span>
+                          <span className="text-[10px] text-slate-400 block">{item.desc}</span>
+                        </div>
                       </div>
                     );
                   })}
                 </div>
-              </div>
-
-              {/* Pricing */}
-              <div
-                onClick={() => handleNav('/pricing')}
-                className={`block px-3 py-3 rounded-lg text-sm font-semibold cursor-pointer transition-colors ${
-                  state.page === 'pricing'
-                    ? 'bg-brand-primary/10 text-brand-primary font-bold'
-                    : 'text-slate-300 hover:bg-white/5 hover:text-white'
-                }`}
-              >
-                Pricing
-              </div>
-
-              {/* Client Portal */}
-              <div
-                onClick={() => handleNav('/client-portal')}
-                className={`block px-3 py-3 rounded-lg text-sm font-semibold cursor-pointer transition-colors ${
-                  state.page === 'client-portal'
-                    ? 'bg-brand-primary/10 text-brand-primary font-bold'
-                    : 'text-slate-300 hover:bg-white/5 hover:text-white'
-                }`}
-              >
-                Client Portal
-              </div>
+              )}
             </div>
 
-            {/* CTA */}
-            <div className="pt-4 border-t border-white/5">
+            {/* Testimonials */}
+            <div
+              onClick={() => handleNav('/reviews')}
+              className={`block px-4 py-3 rounded-xl text-base font-bold cursor-pointer transition-all ${
+                state.page === 'reviews'
+                  ? 'bg-brand-primary/15 text-brand-primary border-l-4 border-brand-primary font-extrabold'
+                  : 'text-slate-200 hover:bg-white/5 hover:text-white'
+              }`}
+            >
+              Testimonials
+            </div>
+
+            {/* Pricing */}
+            <div
+              onClick={() => handleNav('/pricing')}
+              className={`block px-4 py-3 rounded-xl text-base font-bold cursor-pointer transition-all ${
+                state.page === 'pricing'
+                  ? 'bg-brand-primary/15 text-brand-primary border-l-4 border-brand-primary font-extrabold'
+                  : 'text-slate-200 hover:bg-white/5 hover:text-white'
+              }`}
+            >
+              Pricing
+            </div>
+
+            {/* Client Portal */}
+            <div
+              onClick={() => handleNav('/client-portal')}
+              className={`block px-4 py-3 rounded-xl text-base font-bold cursor-pointer transition-all ${
+                state.page === 'client-portal'
+                  ? 'bg-brand-primary/15 text-brand-primary border-l-4 border-brand-primary font-extrabold'
+                  : 'text-slate-200 hover:bg-white/5 hover:text-white'
+              }`}
+            >
+              Client Portal
+            </div>
+
+            {/* Contact & FAQ Mother Page */}
+            <div className="rounded-xl border border-white/10 bg-white/5 overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-white/5 transition-colors">
+                <div
+                  onClick={() => handleNav('/contact')}
+                  className={`text-base font-bold ${
+                    ['contact', 'faq'].includes(state.page)
+                      ? 'text-brand-primary font-extrabold'
+                      : 'text-slate-100 hover:text-white'
+                  }`}
+                >
+                  Contact & Support
+                </div>
+                <button
+                  onClick={() => setMobileContactOpen(!mobileContactOpen)}
+                  className="p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-1 text-xs font-semibold"
+                  aria-label="Toggle Contact submenu"
+                >
+                  <span className="text-[11px] text-slate-400">{mobileContactOpen ? 'Hide Subpages' : 'Subpages'}</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${mobileContactOpen ? 'rotate-180' : ''}`} />
+                </button>
+              </div>
+
+              {mobileContactOpen && (
+                <div className="px-3 pb-3 space-y-1 bg-black/50 pt-2 border-t border-white/5">
+                  {contactDropdownItems.map((item) => {
+                    const isSelected = state.page === item.path.replace('/', '');
+                    return (
+                      <div
+                        key={item.path}
+                        onClick={() => handleNav(item.path)}
+                        className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-all ${
+                          isSelected ? 'bg-brand-primary/20 text-brand-primary font-bold' : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                        }`}
+                      >
+                        <div className="shrink-0">{item.icon}</div>
+                        <div>
+                          <span className="text-xs font-medium block">{item.name}</span>
+                          <span className="text-[10px] text-slate-400 block">{item.desc}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Call to Action Button */}
+            <div className="pt-4 border-t border-white/10 mt-4">
               <button
                 onClick={() => handleNav('/book-a-call')}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-brand-primary to-brand-accent text-white font-bold text-sm rounded-xl shadow-lg cursor-pointer"
+                className="w-full flex items-center justify-center gap-2.5 px-5 py-3.5 bg-gradient-to-r from-brand-primary to-brand-accent text-white font-extrabold text-sm rounded-xl shadow-lg active:scale-95 transition-all cursor-pointer"
               >
-                <PhoneCall className="w-5 h-5" />
+                <PhoneCall className="w-4 h-4" />
                 Book a Free Call
               </button>
             </div>

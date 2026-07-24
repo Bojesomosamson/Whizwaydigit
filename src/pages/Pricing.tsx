@@ -235,24 +235,53 @@ export default function Pricing() {
                 Every project is unique. We provide clear deliverables and custom estimates based on your parameters. After approval, payment settles through secure global tunnels:
               </p>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-2 flex items-start gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2 flex items-start gap-3">
                   <span className="p-2 bg-brand-primary/15 rounded-lg text-brand-primary shrink-0">
                     <Landmark className="w-5 h-5" />
                   </span>
                   <div>
                     <h4 className="font-display font-bold text-sm text-white">Bank Transfer</h4>
-                    <p className="text-[11px] text-slate-400">Supported internationally across all Grey and Wise payout corridors.</p>
+                    <p className="text-[11px] text-slate-400">Direct international wire & bank transfers accepted.</p>
                   </div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-2 flex items-start gap-3">
+                <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2 flex items-start gap-3">
                   <span className="p-2 bg-brand-primary/15 rounded-lg text-brand-primary shrink-0">
                     <Wallet className="w-5 h-5" />
                   </span>
                   <div>
                     <h4 className="font-display font-bold text-sm text-white">Cryptocurrency</h4>
                     <p className="text-[11px] text-slate-400">Instant global settlements using secure stablecoins: USDT, BTC, ETH.</p>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2 flex items-start gap-3">
+                  <span className="p-2 bg-emerald-500/15 rounded-lg text-emerald-400 shrink-0">
+                    <ShieldCheck className="w-5 h-5" />
+                  </span>
+                  <div>
+                    <h4 className="font-display font-bold text-sm text-white">Freelance Platforms</h4>
+                    <p className="text-[11px] text-slate-400">Order via Fiverr or Upwork with 100% platform escrow protection.</p>
+                    <div className="flex items-center gap-2 pt-2">
+                      <a
+                        href="https://www.fiverr.com/whizwaydigit0?public_mode=true"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[10px] font-bold text-emerald-400 hover:underline"
+                      >
+                        Fiverr Order ↗
+                      </a>
+                      <span className="text-slate-600">•</span>
+                      <a
+                        href="https://www.upwork.com/freelancers/~014763bef730442a8f?mp_source=share"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[10px] font-bold text-emerald-400 hover:underline"
+                      >
+                        Upwork Hire ↗
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>

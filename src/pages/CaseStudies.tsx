@@ -274,7 +274,7 @@ export default function CaseStudies() {
               Ready for Similar Growth Metrics?
             </h2>
             <p className="text-xs text-slate-300 leading-relaxed font-sans">
-              Stop settling for legacy template delays. Let\'s host a free call to review your layout bottlenecks and outline custom, sub-second conversion pipelines.
+              Stop settling for legacy template delays. Let's host a free call to review your layout bottlenecks and outline custom, sub-second conversion pipelines.
             </p>
           </div>
 

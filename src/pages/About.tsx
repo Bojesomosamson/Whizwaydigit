@@ -73,13 +73,19 @@ export default function About() {
           
           <div className="lg:col-span-5 relative flex justify-center">
             <div className="relative w-full max-w-sm">
-              <div className="absolute -inset-1 bg-gradient-to-tr from-brand-primary to-brand-accent rounded-2xl opacity-20 blur-md" />
-              <div className="relative aspect-square rounded-2xl bg-gradient-to-tr from-brand-secondary to-indigo-950 flex flex-col justify-end p-8 text-white shadow-lg overflow-hidden">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,#0D6EFD,transparent_55%)] opacity-30" />
+              <div className="absolute -inset-1 bg-gradient-to-tr from-brand-primary to-brand-accent rounded-2xl opacity-25 blur-md" />
+              <div className="relative aspect-square rounded-2xl bg-slate-900 flex flex-col justify-end p-8 text-white shadow-lg overflow-hidden border border-white/10 group">
+                <img
+                  src="https://res.cloudinary.com/h4ihjmt1/image/upload/v1784636736/ff87bc9e-2b0e-49f7-ba4c-fbca57b7934e_p5glte.jpg"
+                  alt="Samson Bojesomo"
+                  referrerPolicy="no-referrer"
+                  className="absolute inset-0 w-full h-full object-cover opacity-85 group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/25 to-transparent pointer-events-none" />
                 <div className="relative z-10 space-y-1">
-                  <span className="text-[10px] uppercase font-mono tracking-widest text-brand-primary font-bold">FOUNDER BRIEF</span>
-                  <h3 className="font-display font-extrabold text-2xl leading-tight">Samson B</h3>
-                  <p className="text-xs text-slate-300">Principal Engineer & UX Strategist</p>
+                  <span className="text-[10px] uppercase font-mono tracking-widest text-brand-primary font-bold bg-slate-950/60 backdrop-blur-md px-2 py-0.5 rounded-md w-fit block">FOUNDER BRIEF</span>
+                  <h3 className="font-display font-extrabold text-2xl leading-tight drop-shadow-md">Samson Bojesomo</h3>
+                  <p className="text-xs text-slate-200 drop-shadow-sm">Founder of WhizwayDigit | Shopify & React Principal Engineer</p>
                 </div>
               </div>
             </div>
@@ -204,7 +210,7 @@ export default function About() {
                 Get an Award-Winning Experience and Transparent Scope Execution.
               </h2>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-3xl">
-                We manage communication transparently, avoid third-party markups, and construct pristine, highly functional digital products with meticulous layout discipline. Let\'s schedule our call.
+                We manage communication transparently, avoid third-party markups, and construct pristine, highly functional digital products with meticulous layout discipline. Let's schedule our call.
               </p>
             </div>
 

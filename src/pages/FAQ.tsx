@@ -38,8 +38,8 @@ export default function FAQ() {
         },
         {
           id: 'price-2',
-          q: 'Which payment pathways do you support?',
-          a: 'We support secure global bank transfers (direct Wise and Grey currency corridors) as well as instant cryptocurrency settlements (including USDT, BTC, ETH) for client convenience.'
+          q: 'How do project payments work?',
+          a: "Once we've discussed your project, agreed on the scope of work, and finalized the pricing, you can securely make payment using any of the following methods:\n\n• Direct bank transfer to the official payment details provided by WhizwayDigit (Samson).\n• Cryptocurrency payment (USDT, BTC, or ETH).\n• Place your order through any of our trusted freelancing platforms if you prefer the added protection of an escrow payment system.\n\nWork begins once payment has been confirmed."
         }
       ]
     },
@@ -132,7 +132,7 @@ export default function FAQ() {
         <div className="bg-slate-50 border border-slate-100 rounded-3xl p-8 text-center space-y-4">
           <h3 className="font-display font-bold text-lg text-brand-secondary">Still Have Unanswered Technical Questions?</h3>
           <p className="text-xs text-slate-500 font-sans max-w-md mx-auto">
-            Let\'s schedule our call. Samson B will break down load speed benchmarks and custom checkouts tailored to your operational needs.
+            Let's schedule our call. Samson B will break down load speed benchmarks and custom checkouts tailored to your operational needs.
           </p>
           <button
             onClick={() => navigate('/contact')}

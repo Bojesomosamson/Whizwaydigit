@@ -8,6 +8,7 @@ import { RouterProvider, useRouter } from './context/RouterContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import WhatsAppButton from './components/WhatsAppButton';
+import Preloader from './components/Preloader';
 
 // Pages
 import Home from './pages/Home';
@@ -73,6 +74,9 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans selection:bg-brand-primary/20 selection:text-brand-secondary">
+      {/* Brand Preloader */}
+      <Preloader />
+
       {/* Sticky Header Mega Menu */}
       <Header />
 

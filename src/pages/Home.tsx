@@ -1,8 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from '../context/RouterContext';
 import { servicesData } from '../data/services';
 import { projectsData } from '../data/projects';
 import { blogData } from '../data/blog';
+import {
+  cloudinaryPortfolioData,
+  croProofsData,
+  salesProofsData,
+  clientVideosData,
+  founderImages
+} from '../data/cloudinary_assets';
 import {
   Sparkles,
   ArrowRight,
@@ -15,12 +22,69 @@ import {
   Star,
   Users,
   Clock,
-  Laptop
+  Laptop,
+  ChevronLeft,
+  ChevronRight,
+  Maximize2,
+  Play,
+  X,
+  Volume2,
+  VolumeX,
+  ShieldCheck
 } from 'lucide-react';
+
+function CountUpNumber({ end, decimals = 0, suffix = '', duration = 2000, textColor = 'text-slate-900' }: { end: number; decimals?: number; suffix?: string; duration?: number; textColor?: string }) {
+  const [val, setVal] = useState(0);
+
+  useEffect(() => {
+    let startTime: number | null = null;
+    let animationFrame: number;
+
+    const animate = (time: number) => {
+      if (!startTime) startTime = time;
+      const progress = Math.min((time - startTime) / duration, 1);
+      const easeOut = 1 - Math.pow(1 - progress, 3);
+      setVal(easeOut * end);
+
+      if (progress < 1) {
+        animationFrame = requestAnimationFrame(animate);
+      }
+    };
+
+    animationFrame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationFrame);
+  }, [end, duration]);
+
+  return (
+    <span className={`font-display font-extrabold text-4xl sm:text-5xl ${textColor} tracking-tight`}>
+      {val.toFixed(decimals)}
+      <span className="text-brand-primary">{suffix}</span>
+    </span>
+  );
+}
 
 export default function Home() {
   const { navigate } = useRouter();
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
+  
+  // Slider states
+  const [portfolioIndex, setPortfolioIndex] = useState(0);
+  const [lightboxImg, setLightboxImg] = useState<string | null>(null);
+  const [activeVideoUrl, setActiveVideoUrl] = useState<string | null>(null);
+  const [activeVideoClient, setActiveVideoClient] = useState<string>('');
+  const [videoMuted, setVideoMuted] = useState(false);
+  const [isHoveringSlider, setIsHoveringSlider] = useState(false);
+
+  const totalPortfolioItems = cloudinaryPortfolioData.length;
+
+  // Auto-play sliding carousel when not hovering
+  useEffect(() => {
+    if (isHoveringSlider) return;
+    const interval = setInterval(() => {
+      setPortfolioIndex((prev) => (prev + 1) % totalPortfolioItems);
+    }, 4500);
+    return () => clearInterval(interval);
+  }, [isHoveringSlider, totalPortfolioItems]);
 
   const stats = [
     { label: 'Client Revenue Generated', value: '$12M+' },
@@ -40,7 +104,7 @@ export default function Home() {
       icon: <Zap className="w-5 h-5 text-amber-400" />
     },
     {
-      title: 'Awwwards Styling Standards',
+      title: 'Awards',
       desc: 'Elegant Inter & Poppins typography, generous negative space, and premium glassmorphic grids that establish immediate authority.',
       icon: <Award className="w-5 h-5 text-blue-400" />
     },
@@ -55,7 +119,7 @@ export default function Home() {
     setActiveFaq(activeFaq === index ? null : index);
   };
 
-  const homeFaqs = [
+  const  homeFaqs = [
     {
       q: 'What is your core design philosophy?',
       a: 'We believe premium design isn\'t just art; it is a measurable business pipeline. We threw out traditional slow templates to craft bespoke, glassmorphic interfaces designed to establish immediate brand trust, load instantly on mobile, and drive conversions.'
@@ -65,8 +129,8 @@ export default function Home() {
       a: 'No. Every project is completely unique. We formulate bespoke custom quotes based on your exact speed, catalog, and software specifications. This guarantees you only pay for exactly what your brand requires to scale.'
     },
     {
-      q: 'How do you handle project payments?',
-      a: 'After formulating your custom blueprint during our free call, we support secure international bank transfers and direct cryptocurrency settlements (USDT, BTC, ETH) for absolute transactional convenience.'
+      q: 'How do project payments work?',
+      a: "Once we've discussed your project, agreed on the scope of work, and finalized the pricing, you can securely make payment using any of the following methods:\n\n• Direct bank transfer to the official payment details provided by WhizwayDigit (Samson).\n• Cryptocurrency payment (USDT, BTC, or ETH).\n• Place your order through any of our trusted freelancing platforms if you prefer the added protection of an escrow payment system.\n\nWork begins once payment has been confirmed."
     }
   ];
 
@@ -83,11 +147,6 @@ export default function Home() {
             
             {/* Left Content Column */}
             <div className="lg:col-span-7 space-y-6 text-left">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs font-semibold text-brand-primary">
-                <Sparkles className="w-3.5 h-3.5" />
-                Awards-Inspired Premium Solutions
-              </div>
-
               <h1 className="font-display font-extrabold text-4xl sm:text-5xl lg:text-6xl text-white leading-tight tracking-tight">
                 Helping Businesses Grow With <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary via-blue-400 to-white">High-Converting</span> Websites.
               </h1>
@@ -130,10 +189,10 @@ export default function Home() {
 
             </div>
 
-            {/* Right Column: Premium Futuristic Visual Display (Aligns with user's video reference) */}
+            {/* Right Column: Premium Visual Profile Display */}
             <div className="lg:col-span-5 relative flex flex-col items-center justify-center">
               
-              {/* Giant background outline text (like "LUMORA" behind the portrait in the video) */}
+              {/* Giant background outline text */}
               <div 
                 className="absolute -bottom-10 left-1/2 -translate-x-1/2 font-display font-extrabold text-[120px] select-none pointer-events-none uppercase leading-none opacity-10 tracking-wider transition-all duration-300 hover:opacity-15"
                 style={{ WebkitTextStroke: '1px rgba(255, 255, 255, 0.4)', color: 'transparent' }}
@@ -141,7 +200,7 @@ export default function Home() {
                 STUDIO
               </div>
 
-              {/* Pulsing visual glow effect, aligned with the website's brand-primary blue/indigo color */}
+              {/* Pulsing visual glow effect */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[380px] h-[380px] bg-brand-primary/20 rounded-full filter blur-[90px] animate-[pulse_5s_infinite] pointer-events-none" />
 
               <div className="relative w-full max-w-sm">
@@ -155,30 +214,35 @@ export default function Home() {
                   {/* Glass gloss effect sweeping across */}
                   <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
 
-                  {/* Mock browser title bar */}
-                  <div className="flex items-center justify-between pb-4 border-b border-white/10">
+                  {/* Clean header window controls */}
+                  <div className="flex items-center justify-between pb-3 border-b border-white/10">
                     <div className="flex gap-1.5">
                       <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80" />
                       <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
                       <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
                     </div>
-                    <span className="font-mono text-[9px] text-slate-500 tracking-wider">WHIZWAY_CANVAS_V2.0</span>
+                    <span className="font-mono text-[10px] text-emerald-400 flex items-center gap-1 font-bold">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      ONLINE & AVAILABLE
+                    </span>
                   </div>
 
-                  {/* Samson B Modern Bio and Profile Layout */}
+                  {/* Samson Bojesomo Profile Layout */}
                   <div className="flex items-center gap-3.5 relative z-10">
                     <div className="relative">
-                      <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-brand-primary via-cyan-400 to-brand-accent flex items-center justify-center p-[2px] shadow-lg group-hover:rotate-12 transition-transform duration-500">
-                        <div className="w-full h-full rounded-full bg-brand-dark flex items-center justify-center font-display font-black text-white text-base">
-                          SB
-                        </div>
+                      <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-brand-primary via-cyan-400 to-brand-accent flex items-center justify-center p-[2px] shadow-xl group-hover:scale-105 transition-transform duration-500 overflow-hidden">
+                        <img
+                          src={founderImages.avatar2}
+                          alt="Samson Bojesomo - Founder & Lead Engineer"
+                          referrerPolicy="no-referrer"
+                          className="w-full h-full object-cover rounded-full"
+                        />
                       </div>
-                      <span className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-brand-dark flex items-center justify-center" />
+                      <span className="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-emerald-500 border-2 border-brand-dark flex items-center justify-center shadow-md" title="Active & Ready to Consult" />
                     </div>
                     <div>
-                      <h3 className="font-display font-extrabold text-white text-base leading-tight tracking-tight flex items-center gap-1.5">
-                        Samson B
-                        <Sparkles className="w-3.5 h-3.5 text-brand-primary" />
+                      <h3 className="font-display font-extrabold text-white text-base sm:text-lg leading-tight tracking-tight">
+                        Samson Bojesomo
                       </h3>
                       <p className="text-[10px] text-brand-primary font-mono font-bold tracking-widest uppercase">FOUNDER & LEAD ENGINEER</p>
                     </div>
@@ -191,46 +255,28 @@ export default function Home() {
                     
                     <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
                       <div>
-                        <span className="block font-display font-black text-2xl text-white tracking-tight">65+</span>
-                        <span className="text-[9px] text-slate-500 uppercase tracking-widest font-mono font-bold">Platforms Built</span>
+                        <span className="block font-display font-black text-2xl text-white tracking-tight">190+</span>
+                        <span className="text-[9px] text-slate-400 uppercase tracking-widest font-mono font-bold">Projects Built</span>
                       </div>
                       <div>
-                        <span className="block font-display font-black text-2xl text-white tracking-tight">4.9★</span>
-                        <span className="text-[9px] text-slate-500 uppercase tracking-widest font-mono font-bold">Client Rating</span>
+                        <span className="block font-display font-black text-2xl text-white tracking-tight">5.0★</span>
+                        <span className="text-[9px] text-slate-400 uppercase tracking-widest font-mono font-bold">Client Rating</span>
                       </div>
                     </div>
                   </div>
 
                   <button
                     onClick={() => navigate('/book-a-call')}
-                    className="w-full relative z-10 py-3 bg-gradient-to-r from-brand-primary/10 to-brand-accent/10 border border-brand-primary/30 hover:border-brand-primary text-white font-semibold text-xs rounded-xl flex items-center justify-center gap-2 hover:bg-brand-primary/20 transition-all duration-300 cursor-pointer shadow-sm active:scale-98"
+                    className="w-full relative z-10 py-3 bg-gradient-to-r from-brand-primary/20 to-brand-accent/20 border border-brand-primary/40 hover:border-brand-primary text-white font-semibold text-xs rounded-xl flex items-center justify-center gap-2 hover:bg-brand-primary/30 transition-all duration-300 cursor-pointer shadow-sm active:scale-98"
                   >
                     View Scheduling Calendar
                     <ArrowRight className="w-3.5 h-3.5 text-brand-primary group-hover:translate-x-1 transition-transform" />
                   </button>
                 </div>
 
-                {/* Highly-polished Floating Badge from the video "CONVERSION DESIGN - Crafted to convert" with glowing star overlay */}
-                <div className="absolute -top-6 -right-6 z-20 flex items-center gap-3 p-3 rounded-2xl bg-slate-900/95 backdrop-blur-md border border-white/15 shadow-[0_10px_30px_rgba(13,110,253,0.3)] animate-[bounce_4s_infinite_ease-in-out]">
-                  <div className="w-8 h-8 rounded-lg bg-brand-primary/20 border border-brand-primary/30 flex items-center justify-center shadow-inner relative group-hover:rotate-45 transition-transform duration-500">
-                    <Sparkles className="w-4 h-4 text-brand-primary animate-pulse" />
-                    {/* Inner glowing core */}
-                    <div className="absolute inset-0.5 rounded-md bg-brand-primary/10 filter blur-xs" />
-                  </div>
-                  <div className="text-left">
-                    <span className="block text-[8px] font-mono font-black tracking-widest text-slate-400 uppercase leading-none">CONVERSION DESIGN</span>
-                    <span className="block text-[11px] font-display font-bold text-white mt-0.5">Crafted to convert.</span>
-                  </div>
-                  <div className="flex gap-0.5 pl-1.5 shrink-0">
-                    <span className="w-1 h-1 rounded-full bg-brand-primary" />
-                    <span className="w-1 h-1 rounded-full bg-brand-primary/50" />
-                    <span className="w-1 h-1 rounded-full bg-brand-primary/20" />
-                  </div>
-                </div>
-
               </div>
 
-              {/* Trusted Brand indicators matching the video: Keito, Nordix, Vellum, Orbit, Brights, Cobalt, Vasa */}
+              {/* Trusted Brand indicators */}
               <div className="w-full max-w-sm mt-6 flex flex-wrap items-center justify-center gap-x-3.5 gap-y-1.5 text-[10px] text-slate-500 font-mono tracking-widest font-bold uppercase">
                 <span>TRUSTED BY</span>
                 <span className="text-slate-700">•</span>
@@ -251,19 +297,44 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 2. LIVE METRICS SUMMARY ROW */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-24 relative z-20">
-        <div className="glass-panel rounded-2xl shadow-xl border border-white/40 p-8 bg-white/80 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          {stats.map((stat, i) => (
-            <div key={i} className="space-y-1">
-              <span className="block font-display font-extrabold text-3xl sm:text-4xl text-brand-secondary tracking-tight">
-                {stat.value}
-              </span>
-              <span className="text-xs text-slate-500 font-sans block leading-tight">
-                {stat.label}
+      {/* 2. ANIMATED METRICS COUNTER CARD (White Box with Hover Shadow) */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-20">
+        <div className="bg-white border border-slate-200/80 rounded-3xl p-8 sm:p-10 shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden group">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-0 divide-y md:divide-y-0 md:divide-x divide-slate-100 text-center relative z-10">
+            
+            {/* Stat 1: Projects Completed */}
+            <div className="flex flex-col items-center justify-center py-4 md:py-0 px-4 space-y-2">
+              <CountUpNumber end={190} suffix="+" duration={2200} textColor="text-slate-900" />
+              <span className="text-[11px] sm:text-xs text-slate-500 font-mono font-extrabold tracking-widest uppercase">
+                PROJECTS COMPLETED
               </span>
             </div>
-          ))}
+
+            {/* Stat 2: Average Load Time */}
+            <div className="flex flex-col items-center justify-center py-4 md:py-0 px-4 space-y-2 pt-6 md:pt-0">
+              <CountUpNumber end={1.5} decimals={1} suffix="s" duration={2000} textColor="text-slate-900" />
+              <span className="text-[11px] sm:text-xs text-slate-500 font-mono font-extrabold tracking-widest uppercase">
+                AVERAGE LOAD TIME
+              </span>
+            </div>
+
+            {/* Stat 3: Client Satisfaction */}
+            <div className="flex flex-col items-center justify-center py-4 md:py-0 px-4 space-y-2 pt-6 md:pt-0">
+              <CountUpNumber end={100} suffix="%" duration={2400} textColor="text-slate-900" />
+              <span className="text-[11px] sm:text-xs text-slate-500 font-mono font-extrabold tracking-widest uppercase">
+                CLIENT SATISFACTION
+              </span>
+            </div>
+
+            {/* Stat 4: Years of Experience */}
+            <div className="flex flex-col items-center justify-center py-4 md:py-0 px-4 space-y-2 pt-6 md:pt-0">
+              <CountUpNumber end={8} suffix="+" duration={1800} textColor="text-slate-900" />
+              <span className="text-[11px] sm:text-xs text-slate-500 font-mono font-extrabold tracking-widest uppercase">
+                YEARS OF EXPERIENCE
+              </span>
+            </div>
+
+          </div>
         </div>
       </section>
 
@@ -282,27 +353,27 @@ export default function Home() {
           {servicesData.slice(0, 3).map((item) => (
             <div
               key={item.slug}
-              className="glass-panel p-6 rounded-2xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 border border-slate-100 flex flex-col justify-between text-left"
+              className="bg-white p-7 rounded-2xl shadow-xl border border-slate-200/80 flex flex-col justify-between text-left hover:shadow-2xl hover:border-brand-primary/40 hover:scale-[1.02] transition-all duration-300 group"
             >
               <div className="space-y-4">
-                <span className="w-10 h-10 rounded-lg bg-brand-primary/10 flex items-center justify-center text-brand-primary font-bold">
-                  {item.id === 's1' ? <Laptop className="w-5 h-5" /> : item.id === 's2' ? <Users className="w-5 h-5" /> : <Clock className="w-5 h-5" />}
+                <span className="w-12 h-12 rounded-xl bg-brand-primary/10 flex items-center justify-center text-brand-primary font-bold shadow-xs">
+                  {item.id === 's1' ? <Laptop className="w-6 h-6" /> : item.id === 's2' ? <Users className="w-6 h-6" /> : <Clock className="w-6 h-6" />}
                 </span>
-                <h3 className="font-display font-bold text-lg text-brand-secondary">
+                <h3 className="font-display font-bold text-xl text-brand-secondary group-hover:text-brand-primary transition-colors">
                   {item.name}
                 </h3>
-                <p className="text-xs text-slate-500 leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-sans">
                   {item.briefDescription}
                 </p>
               </div>
 
-              <div className="pt-6">
+              <div className="pt-6 border-t border-slate-100 mt-6">
                 <button
                   onClick={() => navigate(`/services/${item.slug}`)}
-                  className="text-xs text-brand-primary font-bold flex items-center gap-1 group cursor-pointer"
+                  className="text-xs text-brand-primary font-bold flex items-center gap-1.5 group/btn cursor-pointer"
                 >
-                  Explore Features
-                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                  <span>Explore Features</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover/btn:translate-x-1 transition-transform" />
                 </button>
               </div>
             </div>
@@ -346,6 +417,120 @@ export default function Home() {
                   {h.desc}
                 </p>
               </div>
+            ))}
+          </div>
+
+        </div>
+      </section>
+
+      {/* VERIFIED STOREFRONT CREATIONS SLIDER */}
+      <section className="py-20 bg-slate-900 border-y border-white/5 relative overflow-hidden text-white text-left">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,#1e293b,transparent_70%)] opacity-40" />
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-12">
+          
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div className="space-y-3">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-brand-primary/10 border border-brand-primary/20 rounded-full text-[10px] font-mono tracking-widest uppercase text-brand-primary font-bold">
+                EXPLORE ALL 31+ LIVE DESIGN PROOFS
+              </span>
+              <h2 className="font-display font-extrabold text-3xl sm:text-4xl tracking-tight text-white">
+                Verified Storefront Creations
+              </h2>
+              <p className="text-slate-400 font-sans text-xs sm:text-sm max-w-2xl leading-relaxed">
+                Slide or swipe through real Shopify storefronts, premium custom interfaces, and conversion-optimized architectures developed by WhizwayDigit. Click any image to inspect in full pixel-perfect high-resolution.
+              </p>
+            </div>
+            
+            {/* Slider controls */}
+            <div className="flex items-center gap-2.5 shrink-0 self-start md:self-auto">
+              <button
+                onClick={() => {
+                  setPortfolioIndex((prev) => (prev === 0 ? totalPortfolioItems - 1 : prev - 1));
+                }}
+                className="p-3 rounded-xl bg-white/5 border border-white/10 text-white hover:text-brand-primary hover:bg-white/10 hover:border-brand-primary transition-all duration-200 cursor-pointer"
+                aria-label="Previous Slide"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => {
+                  setPortfolioIndex((prev) => (prev + 1) % totalPortfolioItems);
+                }}
+                className="p-3 rounded-xl bg-white/5 border border-white/10 text-white hover:text-brand-primary hover:bg-white/10 hover:border-brand-primary transition-all duration-200 cursor-pointer"
+                aria-label="Next Slide"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Sliding container */}
+          <div 
+            className="relative overflow-hidden py-4 rounded-2xl"
+            onMouseEnter={() => setIsHoveringSlider(true)}
+            onMouseLeave={() => setIsHoveringSlider(false)}
+          >
+            <div 
+              className="flex transition-transform duration-500 ease-out gap-6"
+              style={{ 
+                transform: `translateX(-${portfolioIndex * 280}px)` 
+              }}
+            >
+              {cloudinaryPortfolioData.map((item, idx) => (
+                <div
+                  key={item.id}
+                  onClick={() => setLightboxImg(item.url)}
+                  className="w-[280px] sm:w-[340px] shrink-0 bg-slate-950 rounded-xl overflow-hidden border border-white/5 shadow-2xl group cursor-pointer hover:border-brand-primary/40 hover:scale-[1.02] transition-all duration-300 flex flex-col"
+                >
+                  <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-900">
+                    <img
+                      src={item.url}
+                      alt={item.title}
+                      referrerPolicy="no-referrer"
+                      loading="lazy"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+                    
+                    {/* Hover magnifying control */}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <div className="p-3 rounded-full bg-brand-primary text-white shadow-lg scale-75 group-hover:scale-100 transition-transform duration-300">
+                        <Maximize2 className="w-5 h-5" />
+                      </div>
+                    </div>
+
+                    <span className="absolute top-3 left-3 text-[9px] font-mono font-bold tracking-widest uppercase text-brand-primary bg-slate-950/70 backdrop-blur-md px-2 py-0.5 rounded-md">
+                      {item.category === 'e-commerce' ? 'Shopify Store' : item.category === 'cro' ? 'Sales Analysis Graph' : 'Web Design'}
+                    </span>
+                  </div>
+                  
+                  <div className="p-4 bg-slate-950 border-t border-white/5 space-y-1 mt-auto">
+                    <h3 className="font-display font-bold text-sm text-white group-hover:text-brand-primary transition-colors truncate">
+                      {item.title}
+                    </h3>
+                    <p className="text-[10px] text-slate-400 font-sans">
+                      Verified Client Delivery • WhizwayDigit Built
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Dots Indicator */}
+          <div className="flex justify-center gap-1.5 pt-4">
+            {Array.from({ length: Math.min(10, totalPortfolioItems) }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setPortfolioIndex(i * 3 % totalPortfolioItems)}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  Math.floor(portfolioIndex / 3) === i 
+                    ? 'w-6 bg-brand-primary' 
+                    : 'w-1.5 bg-white/20 hover:bg-white/40'
+                }`}
+                aria-label={`Go to slide page ${i + 1}`}
+              />
             ))}
           </div>
 
@@ -520,7 +705,7 @@ export default function Home() {
               Ready to Formulate Your Custom Scope?
             </h2>
             <p className="text-sm text-slate-300 leading-relaxed">
-              Skip slow, bloated builders. Let\'s review your speed parameters and craft a bespoke digital strategy that positions your business at the forefront of your industry.
+              Skip slow, bloated builders. Let's review your speed parameters and craft a bespoke digital strategy that positions your business at the forefront of your industry.
             </p>
           </div>
 
@@ -543,6 +728,57 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* LIGHTBOX AND VIDEO TESTIMONIAL MODALS */}
+      {lightboxImg && (
+        <div className="fixed inset-0 bg-black/95 backdrop-blur-md z-50 flex items-center justify-center p-4 sm:p-8 animate-fade-in" style={{ textLeft: 'left' }}>
+          <button
+            onClick={() => setLightboxImg(null)}
+            className="absolute top-6 right-6 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all duration-200 cursor-pointer z-50"
+            aria-label="Close Lightbox"
+          >
+            <X className="w-6 h-6" />
+          </button>
+          <div className="max-w-5xl max-h-[85vh] overflow-y-auto rounded-xl border border-white/10 shadow-2xl relative">
+            <img
+              src={lightboxImg}
+              alt="Fullscreen Screenshot Proof"
+              referrerPolicy="no-referrer"
+              className="w-full h-auto max-h-[85vh] object-contain mx-auto"
+            />
+          </div>
+        </div>
+      )}
+
+      {activeVideoUrl && (
+        <div className="fixed inset-0 bg-black/95 backdrop-blur-md z-50 flex items-center justify-center p-4 sm:p-6 animate-fade-in">
+          <button
+            onClick={() => {
+              setActiveVideoUrl(null);
+              setActiveVideoClient('');
+            }}
+            className="absolute top-6 right-6 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all duration-200 cursor-pointer z-50"
+            aria-label="Close Video Testimonial"
+          >
+            <X className="w-6 h-6" />
+          </button>
+          <div className="w-full max-w-sm aspect-[9/16] max-h-[90vh] bg-slate-950 rounded-2xl border border-white/15 overflow-hidden shadow-2xl relative flex flex-col justify-center">
+            <video
+              src={activeVideoUrl}
+              autoPlay
+              controls
+              playsInline
+              referrerPolicy="no-referrer"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute bottom-16 inset-x-0 p-5 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-transparent text-left space-y-1 pointer-events-none">
+              <span className="text-[10px] uppercase font-mono tracking-widest text-brand-primary font-bold">CLIENT TESTIMONIAL VIDEO</span>
+              <h4 className="font-display font-extrabold text-sm text-white">{activeVideoClient}</h4>
+              <p className="text-[10px] text-slate-300">Verified Client Success Video • WhizwayDigit Client</p>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

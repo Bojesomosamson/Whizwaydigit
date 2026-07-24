@@ -170,7 +170,7 @@ export default function Services() {
             <div className="relative z-10 max-w-xl mx-auto space-y-3">
               <h3 className="font-display font-bold text-2xl">Need a Customized Multi-Service Scope?</h3>
               <p className="text-xs text-slate-300">
-                Let\'s map a custom digital solution on our free call. Samson B will formulate an exact plan, bypassing slow visual builders completely.
+                Let's map a custom digital solution on our free call. Samson B will formulate an exact plan, bypassing slow visual builders completely.
               </p>
             </div>
             <div className="relative z-10">
@@ -364,7 +364,7 @@ export default function Services() {
             </h2>
             
             <p className="text-xs text-slate-300 leading-relaxed font-sans">
-              Every system is different. We do not display pre-defined visual lists because we believe cookie-cutter structures yield cookie-cutter results. Let\'s host a free consultation call to map your exact parameters and formulate a custom quote.
+              Every system is different. We do not display pre-defined visual lists because we believe cookie-cutter structures yield cookie-cutter results. Let's host a free consultation call to map your exact parameters and formulate a custom quote.
             </p>
 
             <div className="pt-2">

@@ -16,6 +16,18 @@ export default function BookACall() {
   
   // Tabs: 'calendly' or 'form'
   const [activeTab, setActiveTab] = useState<'calendly' | 'form'>('calendly');
+  const [calendlyLoading, setCalendlyLoading] = useState(true);
+
+  // Auto hide spinner after max 1 second for ultra fast instant experience
+  React.useEffect(() => {
+    if (activeTab === 'calendly') {
+      setCalendlyLoading(true);
+      const timer = setTimeout(() => {
+        setCalendlyLoading(false);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [activeTab]);
   
   // Hardcoded direct calendly URL (moved configuration entirely out of client viewport)
   const calendlyUrl = 'https://calendly.com/bojesomosamson/30min';
@@ -160,12 +172,26 @@ export default function BookACall() {
               </div>
 
               <div className="relative w-full h-[650px] bg-slate-50">
+                {calendlyLoading && (
+                  <div className="absolute inset-0 z-30 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-6 space-y-3 transition-opacity duration-300">
+                    <img
+                      src="https://res.cloudinary.com/h4ihjmt1/image/upload/v1784822212/my_logo-removebg-preview_mj5zdb.png"
+                      alt="WhizwayDigit Logo"
+                      className="w-12 h-12 object-contain animate-bounce"
+                    />
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full border-2 border-brand-primary border-t-transparent animate-spin" />
+                      <span className="font-mono text-xs font-bold text-slate-700">Connecting Calendly Schedule...</span>
+                    </div>
+                  </div>
+                )}
                 <iframe
                   src={getCleanCalendlyUrl(calendlyUrl)}
                   className="w-full h-full border-0"
                   title="Schedule Consultation"
                   allow="geolocation; microphone; camera; clipboard-write"
                   id="calendly-iframe"
+                  onLoad={() => setCalendlyLoading(false)}
                 />
               </div>
 

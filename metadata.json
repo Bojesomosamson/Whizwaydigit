@@ -1,6 +1,6 @@
 {
   "name": "WhizwayDigit",
   "description": "High-Converting Websites, Shopify Stores & Digital Solutions by Samson B.",
-  "requestFramePermissions": [],
+  "requestFramePermissions": ["microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

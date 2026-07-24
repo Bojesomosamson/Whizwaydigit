@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useRouter } from '../context/RouterContext';
 import { ContactSubmission } from '../types';
+import VoiceRecorder from '../components/VoiceRecorder';
 import { 
   Sparkles, 
   Send, 
@@ -17,7 +18,7 @@ import {
   Mail, 
   MapPin, 
   Clock,
-  Phone 
+  Phone
 } from 'lucide-react';
 
 export default function Contact() {
@@ -43,15 +44,81 @@ export default function Contact() {
   const [submitting, setSubmitting] = useState(false);
   const [activeFaq, setActiveFaq] = useState<string | null>(null);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [customPrice, setCustomPrice] = useState('');
+  
+  // Voice Dictation State
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
 
-  // Form dropdown options
+  const toggleVoiceInput = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      alert('Voice dictation is not natively supported in this browser window. Please try using Google Chrome, Microsoft Edge, or Safari.');
+      return;
+    }
+
+    if (isListening) {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      setIsListening(false);
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event: any) => {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        if (transcript) {
+          setFormData((prev) => ({
+            ...prev,
+            message: prev.message ? `${prev.message} ${transcript}`.trim() : transcript
+          }));
+        }
+      };
+
+      recognition.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (err) {
+      console.error('Failed to start speech recognition:', err);
+      setIsListening(false);
+    }
+  };
+
+  // Form dropdown options with flexible starting price options
   const budgets = [
     'Choose Project Budget',
-    '$3,000 - $5,000',
-    '$5,000 - $10,000',
-    '$10,000 - $25,000',
-    '$25,000 - $50,000',
-    '$50,000+'
+    '$250 - $500 (Basic Setup)',
+    '$500 - $1,000 (Starter Store)',
+    '$1,000 - $2,500 (Growth Platform)',
+    '$2,500 - $5,000 (Full Platform Rebuild)',
+    '$5,000+ (Enterprise Custom)',
+    'Custom Price (Type Your Own Budget)'
   ];
 
   const serviceOptions = [
@@ -101,8 +168,8 @@ export default function Contact() {
         },
         {
           id: 'price-2',
-          q: 'Which payment pathways do you support?',
-          a: 'We support secure global bank transfers (direct Wise and Grey currency corridors) as well as instant cryptocurrency settlements (including USDT, BTC, ETH) for client convenience.'
+          q: 'How do project payments work?',
+          a: "Once we've discussed your project, agreed on the scope of work, and finalized the pricing, you can securely make payment using any of the following methods:\n\n• Direct bank transfer to the official payment details provided by WhizwayDigit (Samson).\n• Cryptocurrency payment (USDT, BTC, or ETH).\n• Place your order through any of our trusted freelancing platforms if you prefer the added protection of an escrow payment system.\n\nWork begins once payment has been confirmed."
         }
       ]
     },
@@ -168,13 +235,19 @@ export default function Contact() {
     if (selectedTypes.length === 0) { setFormError('Please select at least one project category.'); return; }
     if (!formData.message.trim()) { setFormError('Please describe your project specifications in the message field.'); return; }
 
+    const effectiveBudget = formData.projectBudget.includes('Custom Price') 
+      ? (customPrice ? `$${customPrice.replace('$', '')} (Custom)` : 'Custom Price') 
+      : formData.projectBudget;
+
     setSubmitting(true);
     
     setTimeout(() => {
       const submissionObj = {
         name: formData.name,
         email: formData.email,
-        projectType: formData.projectType,
+        phone: formData.phone,
+        projectType: selectedTypes.join(', '),
+        projectBudget: effectiveBudget,
         message: formData.message,
         timestamp: new Date().toISOString()
       };
@@ -183,9 +256,46 @@ export default function Contact() {
       existingLogs.push(submissionObj);
       localStorage.setItem('contact_submissions', JSON.stringify(existingLogs));
 
+      // Build pre-filled email details for direct delivery to bojesomosamson@gmail.com
+      const emailSubject = `New Project Inquiry from ${formData.name} - WhizwayDigit`;
+      const emailBody = 
+        `Hello Samson Bojesomo,\n\nI have submitted a new project inquiry via WhizwayDigit.\n\n` +
+        `--- INQUIRY BLUEPRINT ---\n` +
+        `Client Name: ${formData.name}\n` +
+        `Email Address: ${formData.email}\n` +
+        `Phone Number: ${formData.phone || 'Not Provided'}\n` +
+        `Project Budget: ${effectiveBudget || 'To be discussed'}\n` +
+        `Services Requested: ${selectedTypes.join(', ')}\n\n` +
+        `--- PROJECT DESCRIPTION ---\n` +
+        `${formData.message}\n\n` +
+        `Sent to bojesomosamson@gmail.com via WhizwayDigit.`;
+
+      const mailtoUrl = `mailto:bojesomosamson@gmail.com?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+      const gmailWebUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=bojesomosamson@gmail.com&su=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+
+      // Save for Thank You page direct buttons
+      localStorage.setItem('latest_inquiry_mail_data', JSON.stringify({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        budget: effectiveBudget,
+        services: selectedTypes.join(', '),
+        message: formData.message,
+        mailtoUrl,
+        gmailWebUrl
+      }));
+
       setSubmitting(false);
+
+      // Launch mail client or open pre-filled browser tab
+      try {
+        window.open(gmailWebUrl, '_blank');
+      } catch (e) {
+        window.location.href = mailtoUrl;
+      }
+      
       navigate('/thank-you');
-    }, 1500);
+    }, 1200);
   };
 
   return (
@@ -198,13 +308,13 @@ export default function Contact() {
 
         <div className="max-w-4xl mx-auto px-4 relative z-10 space-y-4">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-brand-primary/10 border border-brand-primary/20 rounded-full text-xs font-semibold text-brand-primary">
-            GET IN TOUCH
+            DIRECT PROJECT INQUIRY
           </span>
           <h1 className="font-display font-extrabold text-4xl sm:text-5xl text-brand-secondary tracking-tight">
-            FAQ & Contact
+            Submit Project Inquiry
           </h1>
           <p className="text-slate-500 font-sans max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
-            Have a project in mind? Submit your blueprint inquiry below or browse our popular answered technical questions. We normally reply in less than 4 hours.
+            Have a project in mind? Submit your blueprint inquiry below or reach out directly via our verified communication channels. You can speak in any language using voice dictation to express your goals effortlessly.
           </p>
         </div>
       </section>
@@ -295,17 +405,87 @@ export default function Contact() {
                 </div>
               </div>
 
-              {/* Row 3: Message description */}
-              <div className="space-y-1.5">
-                <label htmlFor="message-field" className="block text-xs font-display font-bold text-slate-700">Describe Your Project *</label>
+              {/* Row 2.5: Phone Number and Budget Selector */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div className="space-y-1.5">
+                  <label htmlFor="phone-field" className="block text-xs font-display font-bold text-slate-700">Phone Number (Optional)</label>
+                  <input
+                    id="phone-field"
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    placeholder="e.g. +1 (409) 268-6116"
+                    className="w-full bg-slate-50 border border-slate-100 rounded-lg px-3.5 py-3 text-xs text-brand-secondary focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all duration-200"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label htmlFor="budget-field" className="block text-xs font-display font-bold text-slate-700">Project Budget *</label>
+                  <select
+                    id="budget-field"
+                    name="projectBudget"
+                    value={formData.projectBudget}
+                    onChange={handleInputChange}
+                    className="w-full bg-slate-50 border border-slate-100 rounded-lg px-3.5 py-3 text-xs text-brand-secondary focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all duration-200 cursor-pointer"
+                    required
+                  >
+                    {budgets.map((b) => (
+                      <option key={b} value={b === 'Choose Project Budget' ? '' : b}>
+                        {b}
+                      </option>
+                    ))}
+                  </select>
+
+                  {/* Custom Price Input Field */}
+                  {formData.projectBudget.includes('Custom Price') && (
+                    <div className="pt-2 animate-fade-in space-y-1">
+                      <label htmlFor="custom-price-field" className="block text-[11px] font-display font-bold text-brand-primary">
+                        Enter Your Target Custom Price ($USD) *
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-xs text-slate-400">$</span>
+                        <input
+                          id="custom-price-field"
+                          type="text"
+                          value={customPrice}
+                          onChange={(e) => setCustomPrice(e.target.value)}
+                          placeholder="e.g. 150, 350, 800"
+                          className="w-full bg-slate-50 border border-brand-primary/40 rounded-lg pl-7 pr-3.5 py-2.5 text-xs text-brand-secondary focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all duration-200"
+                          required
+                        />
+                      </div>
+                      <p className="text-[10px] text-slate-400 font-sans">Type any custom price that aligns with your budget.</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Row 3: Message description with Voice Recording & Multilingual Translation */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <label htmlFor="message-field" className="block text-xs font-display font-bold text-slate-700">
+                    Describe Your Project *
+                  </label>
+                  <span className="text-[10px] text-slate-400 font-mono">
+                    🎙️ Voice Dictation Enabled
+                  </span>
+                </div>
+
+                <VoiceRecorder
+                  currentText={formData.message}
+                  onTranscription={(newText) => {
+                    setFormData((prev) => ({ ...prev, message: newText }));
+                  }}
+                />
+
                 <textarea
                   id="message-field"
                   name="message"
                   value={formData.message}
                   onChange={handleInputChange}
                   rows={4}
-                  placeholder="What are your goals? Briefly explain what you are looking to build or redesign..."
-                  className="w-full bg-slate-50 border border-slate-100 rounded-lg p-3.5 text-xs text-brand-secondary focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all duration-200 resize-none"
+                  placeholder="What are your goals? Briefly explain what you are looking to build or redesign... You can also use the Voice Dictate button above to speak in any language!"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-xs text-brand-secondary focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary transition-all duration-200 resize-none shadow-inner"
                   required
                 />
               </div>
