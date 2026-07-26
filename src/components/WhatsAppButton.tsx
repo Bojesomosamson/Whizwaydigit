@@ -84,6 +84,7 @@ export default function WhatsAppButton() {
   const [chatMessage, setChatMessage] = useState('');
   const [chatSent, setChatSent] = useState(false);
   const [isListeningChat, setIsListeningChat] = useState(false);
+  const [micErrorMsg, setMicErrorMsg] = useState<string | null>(null);
   const chatRecognitionRef = useRef<any>(null);
 
   // Independent draggable widgets for Fiverr & Upwork
@@ -91,9 +92,11 @@ export default function WhatsAppButton() {
   const upworkWidget = useDraggableWidget(20, 275);
 
   const toggleChatVoice = async () => {
+    setMicErrorMsg(null);
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    
     if (!SpeechRecognition) {
-      alert('Voice dictation is not natively supported in this browser window. Please use Chrome, Safari or Edge.');
+      setMicErrorMsg('Voice dictation is restricted on this browser. You can tap below to open WhatsApp and send voice notes directly!');
       return;
     }
 
@@ -106,35 +109,44 @@ export default function WhatsAppButton() {
     }
 
     try {
-      // Request mic permission first
-      await navigator.mediaDevices.getUserMedia({ audio: true });
-
       const recognition = new SpeechRecognition();
-      recognition.continuous = true;
+      recognition.continuous = false; // continuous = true often fails on mobile speech recognition
       recognition.interimResults = true;
       recognition.lang = 'en-US';
 
-      recognition.onstart = () => setIsListeningChat(true);
+      recognition.onstart = () => {
+        setIsListeningChat(true);
+        setMicErrorMsg(null);
+      };
+
       recognition.onresult = (event: any) => {
         let transcript = '';
         for (let i = event.resultIndex; i < event.results.length; i++) {
-          if (event.results[i].isFinal) {
-            transcript += event.results[i][0].transcript + ' ';
-          }
+          transcript += event.results[i][0].transcript;
         }
         if (transcript.trim()) {
           setChatMessage((prev) => (prev ? `${prev} ${transcript.trim()}`.trim() : transcript.trim()));
         }
       };
-      recognition.onerror = () => setIsListeningChat(false);
+
+      recognition.onerror = (event: any) => {
+        console.warn('Speech recognition notice:', event.error);
+        setIsListeningChat(false);
+        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+          setMicErrorMsg('Microphone access restricted on mobile. Tap below to chat or send voice notes directly on WhatsApp!');
+        } else if (event.error !== 'no-speech') {
+          setMicErrorMsg('Voice dictation unavailable. Please type your message or connect on WhatsApp!');
+        }
+      };
+
       recognition.onend = () => setIsListeningChat(false);
 
       chatRecognitionRef.current = recognition;
       recognition.start();
     } catch (e) {
-      console.error('Mic permission error:', e);
-      alert('Microphone access was blocked. Please allow mic access in your browser bar to record voice notes.');
+      console.error('Speech recognition launch error:', e);
       setIsListeningChat(false);
+      setMicErrorMsg('Mic permission restricted. Tap "Start WhatsApp Chat" to talk or send voice notes directly!');
     }
   };
 
@@ -288,14 +300,41 @@ export default function WhatsAppButton() {
                   <button
                     type="button"
                     onClick={toggleChatVoice}
-                    className={`p-1 rounded-md text-[10px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
-                      isListeningChat ? 'bg-rose-500 text-white animate-pulse' : 'bg-white/10 text-emerald-400 hover:bg-white/20'
+                    className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                      isListeningChat
+                        ? 'bg-rose-600 text-white animate-pulse shadow-md'
+                        : 'bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/30'
                     }`}
                     title="Dictate message using voice microphone"
                   >
                     <Mic className="w-3 h-3" />
+                    <span>{isListeningChat ? 'Listening...' : 'Voice'}</span>
                   </button>
                 </div>
+
+                {/* Inline listening feedback */}
+                {isListeningChat && (
+                  <div className="p-2 bg-rose-500/20 border border-rose-500/40 rounded-xl text-[11px] text-rose-200 flex items-center gap-2 animate-pulse">
+                    <span className="w-2 h-2 rounded-full bg-rose-400 animate-ping shrink-0" />
+                    <span>Listening to your voice... Speak clearly into your phone.</span>
+                  </div>
+                )}
+
+                {/* Inline mic notice or fallback for mobile */}
+                {micErrorMsg && (
+                  <div className="p-2 bg-amber-500/15 border border-amber-500/30 rounded-xl text-[10px] text-amber-200 space-y-1">
+                    <p>{micErrorMsg}</p>
+                    <a
+                      href="https://wa.me/14092686116?text=Hello%20Samson%20B,%20I'm%20reaching%20out%20to%20send%20a%20voice%20note%20about%20a%20project."
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-emerald-400 font-bold hover:underline"
+                    >
+                      <MessageCircle className="w-3 h-3" />
+                      Open WhatsApp App to Send Voice Note →
+                    </a>
+                  </div>
+                )}
 
                 <textarea
                   value={chatMessage}

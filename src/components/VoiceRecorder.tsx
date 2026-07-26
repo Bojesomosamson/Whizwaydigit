@@ -69,20 +69,10 @@ export default function VoiceRecorder({ onTranscription, currentText }: VoiceRec
     lastFullTextRef.current = currentText.trim();
     shouldKeepListeningRef.current = true;
 
-    // Try acquiring media stream for visual feedback / mic check (non-blocking)
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaStreamRef.current = stream;
-      } catch (err) {
-        console.warn('getUserMedia warning (continuing with SpeechRecognition):', err);
-      }
-    }
-
     const initRecognition = () => {
       try {
         const recognition = new SpeechRecognition();
-        recognition.continuous = true;
+        recognition.continuous = false; // continuous = false works reliably on mobile Safari & Chrome
         recognition.interimResults = true;
         recognition.lang = currentLangRef.current;
 
