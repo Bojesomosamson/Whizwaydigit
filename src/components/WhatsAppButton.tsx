@@ -86,6 +86,8 @@ export default function WhatsAppButton() {
   const [isListeningChat, setIsListeningChat] = useState(false);
   const [micErrorMsg, setMicErrorMsg] = useState<string | null>(null);
   const chatRecognitionRef = useRef<any>(null);
+  const chatMediaStreamRef = useRef<MediaStream | null>(null);
+  const chatMediaRecorderRef = useRef<MediaRecorder | null>(null);
 
   // Independent draggable widgets for Fiverr & Upwork
   const fiverrWidget = useDraggableWidget(20, 220);
@@ -93,24 +95,88 @@ export default function WhatsAppButton() {
 
   const toggleChatVoice = async () => {
     setMicErrorMsg(null);
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    
-    if (!SpeechRecognition) {
-      setMicErrorMsg('Voice dictation is restricted on this browser. You can tap below to open WhatsApp and send voice notes directly!');
-      return;
-    }
 
+    // If currently listening, stop cleanly
     if (isListeningChat) {
       if (chatRecognitionRef.current) {
-        try { chatRecognitionRef.current.stop(); } catch (e) {}
+        try {
+          chatRecognitionRef.current.stop();
+        } catch (e) {}
+      }
+      if (chatMediaRecorderRef.current && chatMediaRecorderRef.current.state === 'recording') {
+        try {
+          chatMediaRecorderRef.current.stop();
+        } catch (e) {}
+      }
+      if (chatMediaStreamRef.current) {
+        chatMediaStreamRef.current.getTracks().forEach((track) => track.stop());
+        chatMediaStreamRef.current = null;
       }
       setIsListeningChat(false);
       return;
     }
 
+    // Step 1: Explicitly request microphone stream from device browser
+    let stream: MediaStream | null = null;
+    try {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        chatMediaStreamRef.current = stream;
+      }
+    } catch (err: any) {
+      console.warn('getUserMedia mic request:', err);
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        setMicErrorMsg(
+          'Microphone permission was blocked. Please allow microphone access in your browser settings to dictate by voice.'
+        );
+        return;
+      }
+    }
+
+    // Step 2: Initialize Speech Recognition if supported, or fallback to MediaRecorder
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      if (stream) {
+        try {
+          const mediaRecorder = new MediaRecorder(stream);
+          chatMediaRecorderRef.current = mediaRecorder;
+          let chunks: Blob[] = [];
+
+          mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+          mediaRecorder.onstop = () => {
+            const audioBlob = new Blob(chunks, { type: 'audio/webm' });
+            if (audioBlob.size > 0) {
+              setChatMessage((prev) =>
+                prev ? `${prev} [Voice Note Recorded]` : '[Voice Note Recorded]'
+              );
+            }
+            if (chatMediaStreamRef.current) {
+              chatMediaStreamRef.current.getTracks().forEach((track) => track.stop());
+              chatMediaStreamRef.current = null;
+            }
+            setIsListeningChat(false);
+          };
+
+          mediaRecorder.start();
+          setIsListeningChat(true);
+          setMicErrorMsg(null);
+          return;
+        } catch (recorderErr) {
+          console.warn('MediaRecorder error:', recorderErr);
+        }
+      }
+
+      setMicErrorMsg(
+        'Voice dictation is restricted on this mobile browser. Tap below to launch WhatsApp directly where you can send voice notes!'
+      );
+      return;
+    }
+
     try {
       const recognition = new SpeechRecognition();
-      recognition.continuous = false; // continuous = true often fails on mobile speech recognition
+      recognition.continuous = false;
       recognition.interimResults = true;
       recognition.lang = 'en-US';
 
@@ -132,20 +198,36 @@ export default function WhatsAppButton() {
       recognition.onerror = (event: any) => {
         console.warn('Speech recognition notice:', event.error);
         setIsListeningChat(false);
+        if (chatMediaStreamRef.current) {
+          chatMediaStreamRef.current.getTracks().forEach((track) => track.stop());
+          chatMediaStreamRef.current = null;
+        }
         if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-          setMicErrorMsg('Microphone access restricted on mobile. Tap below to chat or send voice notes directly on WhatsApp!');
+          setMicErrorMsg(
+            'Microphone access restricted on mobile. Tap below to chat or send voice notes directly on WhatsApp!'
+          );
         } else if (event.error !== 'no-speech') {
-          setMicErrorMsg('Voice dictation unavailable. Please type your message or connect on WhatsApp!');
+          setMicErrorMsg('Voice listening paused. You can continue typing or send voice notes on WhatsApp.');
         }
       };
 
-      recognition.onend = () => setIsListeningChat(false);
+      recognition.onend = () => {
+        setIsListeningChat(false);
+        if (chatMediaStreamRef.current) {
+          chatMediaStreamRef.current.getTracks().forEach((track) => track.stop());
+          chatMediaStreamRef.current = null;
+        }
+      };
 
       chatRecognitionRef.current = recognition;
       recognition.start();
     } catch (e) {
       console.error('Speech recognition launch error:', e);
       setIsListeningChat(false);
+      if (chatMediaStreamRef.current) {
+        chatMediaStreamRef.current.getTracks().forEach((track) => track.stop());
+        chatMediaStreamRef.current = null;
+      }
       setMicErrorMsg('Mic permission restricted. Tap "Start WhatsApp Chat" to talk or send voice notes directly!');
     }
   };

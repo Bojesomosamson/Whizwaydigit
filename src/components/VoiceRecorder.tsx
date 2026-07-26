@@ -54,10 +54,54 @@ export default function VoiceRecorder({ onTranscription, currentText }: VoiceRec
     setErrorMessage(null);
     setTranslatedStatus(null);
 
+    // Explicitly request microphone stream permission from device browser
+    let stream: MediaStream | null = null;
+    try {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaStreamRef.current = stream;
+      }
+    } catch (err: any) {
+      console.warn('getUserMedia permission error:', err);
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        setErrorMessage(
+          'Microphone permission was blocked. Please allow microphone access in your browser address bar / settings and try again.'
+        );
+        return;
+      }
+    }
+
     const SpeechRecognition =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
+      if (stream) {
+        try {
+          const mediaRecorder = new MediaRecorder(stream);
+          let chunks: Blob[] = [];
+          mediaRecorder.ondataavailable = (e) => chunks.push(e.data);
+          mediaRecorder.onstop = () => {
+            const audioBlob = new Blob(chunks, { type: 'audio/webm' });
+            if (audioBlob.size > 0) {
+              onTranscription(
+                currentText ? `${currentText} [Voice Recording Captured]` : '[Voice Recording Captured]'
+              );
+            }
+          };
+          mediaRecorder.start();
+          setIsRecording(true);
+          if (!timerRef.current) {
+            setRecordingTime(0);
+            timerRef.current = setInterval(() => {
+              setRecordingTime((prev) => prev + 1);
+            }, 1000);
+          }
+          return;
+        } catch (recorderErr) {
+          console.warn('MediaRecorder fallback error:', recorderErr);
+        }
+      }
+
       setErrorMessage(
         'Speech recognition is not natively supported in this browser window. Please use Google Chrome, Microsoft Edge, or Safari.'
       );
